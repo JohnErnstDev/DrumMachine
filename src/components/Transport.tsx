@@ -5,6 +5,7 @@ interface Props {
   bpm: number;
   volume: number;
   loop: boolean;
+  isExporting: boolean;
   onPlay: () => void;
   onPause: () => void;
   onStop: () => void;
@@ -12,12 +13,13 @@ interface Props {
   onBpmChange: (bpm: number) => void;
   onVolumeChange: (vol: number) => void;
   onLoopToggle: () => void;
+  onExport: () => void;
 }
 
 export function Transport({
-  transport, bpm, volume, loop,
+  transport, bpm, volume, loop, isExporting,
   onPlay, onPause, onStop, onRewind,
-  onBpmChange, onVolumeChange, onLoopToggle,
+  onBpmChange, onVolumeChange, onLoopToggle, onExport,
 }: Props) {
   const isPlaying = transport === 'playing';
 
@@ -71,6 +73,16 @@ export function Transport({
           onChange={(e) => onVolumeChange(Number(e.target.value))}
         />
       </label>
+
+      {/* WAV Export */}
+      <button
+        className={`transport-btn transport-btn--export${isExporting ? ' transport-btn--loading' : ''}`}
+        onMouseDown={isExporting ? undefined : onExport}
+        disabled={isExporting}
+        title="Export one-shot loop as WAV"
+      >
+        {isExporting ? '⏳ Rendering…' : '💾 Export WAV'}
+      </button>
     </div>
   );
 }

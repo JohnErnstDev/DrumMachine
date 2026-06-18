@@ -8,7 +8,7 @@ const CYMBAL_PARAMS: Record<CymbalVariant, { decay: number; cutoff: number; ping
 };
 
 export class Cymbal {
-  constructor(private ctx: AudioContext, private destination: AudioNode) {}
+  constructor(private ctx: BaseAudioContext, private destination: AudioNode) {}
 
   trigger(variant: CymbalVariant, time = this.ctx.currentTime, gainMultiplier = 1.0): void {
     const { decay, cutoff, pingFreq } = CYMBAL_PARAMS[variant];

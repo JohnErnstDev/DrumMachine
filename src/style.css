@@ -393,3 +393,18 @@ header h1 {
     width: calc(4 * 28px + 3 * 3px);
   }
 }
+
+.transport-btn--export {
+  margin-left: auto;
+  background: #1a2a3a;
+  border-color: #2563eb;
+  color: #93c5fd;
+  font-size: 0.78rem;
+}
+.transport-btn--export:hover:not(:disabled) {
+  background: #1e3a5f;
+}
+.transport-btn--loading {
+  opacity: 0.65;
+  cursor: not-allowed;
+}

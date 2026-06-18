@@ -6,7 +6,7 @@ const BURST_OFFSETS = [0, 0.008, 0.018, 0.028];
 const BURST_DURATION = 0.045;
 
 export class Clap {
-  constructor(private ctx: AudioContext, private destination: AudioNode) {}
+  constructor(private ctx: BaseAudioContext, private destination: AudioNode) {}
 
   trigger(time = this.ctx.currentTime, gainMultiplier = 1.0): void {
     BURST_OFFSETS.forEach((offset, i) => {

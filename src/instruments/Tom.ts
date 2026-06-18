@@ -7,7 +7,7 @@ const TOM_PARAMS: Record<TomVariant, { startFreq: number; endFreq: number; decay
 };
 
 export class Tom {
-  constructor(private ctx: AudioContext, private destination: AudioNode) {}
+  constructor(private ctx: BaseAudioContext, private destination: AudioNode) {}
 
   trigger(variant: TomVariant, time = this.ctx.currentTime, gainMultiplier = 1.0): void {
     const { startFreq, endFreq, decay } = TOM_PARAMS[variant];

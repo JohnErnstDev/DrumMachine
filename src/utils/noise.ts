@@ -1,5 +1,5 @@
 /** Creates a mono white-noise AudioBuffer of the given duration (seconds). */
-export function createNoiseBuffer(ctx: AudioContext, duration = 1): AudioBuffer {
+export function createNoiseBuffer(ctx: BaseAudioContext, duration = 1): AudioBuffer {
   const length = Math.ceil(ctx.sampleRate * duration);
   const buffer = ctx.createBuffer(1, length, ctx.sampleRate);
   const data = buffer.getChannelData(0);

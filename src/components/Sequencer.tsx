@@ -12,6 +12,7 @@ export function Sequencer({
   volume,
   loop,
   currentStep,
+  isExporting,
   play,
   pause,
   stop,
@@ -21,6 +22,7 @@ export function Sequencer({
   setLoop,
   toggleStep,
   toggleAccent,
+  exportWav,
 }: SequencerProps) {
   return (
     <section className="sequencer">
@@ -31,6 +33,7 @@ export function Sequencer({
         bpm={bpm}
         volume={volume}
         loop={loop}
+        isExporting={isExporting}
         onPlay={play}
         onPause={pause}
         onStop={stop}
@@ -38,6 +41,7 @@ export function Sequencer({
         onBpmChange={setBpm}
         onVolumeChange={setVolume}
         onLoopToggle={() => setLoop(!loop)}
+        onExport={exportWav}
       />
 
       <div className="sequencer__grid">

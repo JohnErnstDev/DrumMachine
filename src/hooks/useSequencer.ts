@@ -2,6 +2,8 @@ import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { SequencerEngine } from '../sequencer/SequencerEngine.ts';
 import { createEmptyPattern } from '../sequencer/types.ts';
 import { PADS } from '../config/pads.ts';
+import { renderPattern } from '../export/renderPattern.ts';
+import { encodeWav, downloadBlob } from '../export/encodeWav.ts';
 import type { DrumKit } from '../DrumKit.ts';
 import type { Pattern, StepCell, TransportState } from '../sequencer/types.ts';
 
@@ -129,6 +131,22 @@ export function useSequencer(kit: DrumKit) {
     dispatch({ type: 'TOGGLE_ACCENT', trackIndex, stepIndex });
   }, []);
 
+  // ── WAV export ───────────────────────────────────────────────────────────
+
+  const [isExporting, setIsExporting] = useState(false);
+
+  const exportWav = useCallback(async () => {
+    if (isExporting) return;
+    setIsExporting(true);
+    try {
+      const audioBuffer = await renderPattern(pattern, bpm, volume);
+      const blob = encodeWav(audioBuffer);
+      downloadBlob(blob, 'drum-loop.wav');
+    } finally {
+      setIsExporting(false);
+    }
+  }, [isExporting, pattern, bpm, volume]);
+
   return {
     pattern,
     transport,
@@ -136,6 +154,7 @@ export function useSequencer(kit: DrumKit) {
     volume,
     loop,
     currentStep,
+    isExporting,
     play,
     pause,
     stop,
@@ -145,5 +164,6 @@ export function useSequencer(kit: DrumKit) {
     setLoop,
     toggleStep,
     toggleAccent,
+    exportWav,
   };
 }

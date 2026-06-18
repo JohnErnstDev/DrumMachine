@@ -1,7 +1,7 @@
 import { createNoiseBuffer } from '../utils/noise.ts';
 
 export class Snare {
-  constructor(private ctx: AudioContext, private destination: AudioNode) {}
+  constructor(private ctx: BaseAudioContext, private destination: AudioNode) {}
 
   trigger(time = this.ctx.currentTime, gainMultiplier = 1.0): void {
     const osc = this.ctx.createOscillator();

@@ -1,7 +1,7 @@
 import { createNoiseBuffer } from '../utils/noise.ts';
 
 export class HiHat {
-  constructor(private ctx: AudioContext, private destination: AudioNode) {}
+  constructor(private ctx: BaseAudioContext, private destination: AudioNode) {}
 
   private triggerNoise(time: number, decayTime: number, cutoff: number, gainMultiplier: number): void {
     const noiseSource = this.ctx.createBufferSource();
