@@ -42,6 +42,9 @@ interface ProjectStore extends ProjectData {
   removeSongSlot: (slotId: string) => void;
   moveSongSlot: (slotId: string, direction: 'up' | 'down') => void;
   setSongSlotRepeats: (slotId: string, repeats: number) => void;
+
+  // Demo loading
+  loadDemo: (demo: ProjectData) => void;
 }
 
 const saved = loadProject();
@@ -173,6 +176,16 @@ export const useProjectStore = create<ProjectStore>((set, get) => {
       set((s) => ({
         song: s.song.map((sl) => (sl.id === slotId ? { ...sl, repeats: clamped } : sl)),
       }));
+    },
+
+    loadDemo(demo) {
+      set({
+        patterns:        demo.patterns,
+        song:            demo.song,
+        activePatternId: demo.activePatternId,
+        bpm:             demo.bpm,
+        volume:          demo.volume,
+      });
     },
   };
 

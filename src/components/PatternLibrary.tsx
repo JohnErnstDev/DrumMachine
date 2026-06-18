@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useProjectStore } from '../store/useProjectStore.ts';
+import { DemoButtons } from './DemoButtons.tsx';
 
 export function PatternLibrary() {
   const {
@@ -33,6 +34,7 @@ export function PatternLibrary() {
         <button className="pattern-library__add-btn" onClick={addPattern} title="New Pattern">
           + New
         </button>
+        <DemoButtons />
       </div>
 
       <div className="pattern-library__scroll">

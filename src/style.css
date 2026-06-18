@@ -699,3 +699,38 @@ header h1 {
 .song-slot-card__remove:hover {
   color: #f87171;
 }
+
+/* ── Demo buttons ──────────────────────────────── */
+
+.demo-buttons {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.demo-buttons__label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-right: 2px;
+}
+
+.demo-btn {
+  background: #1e2535;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  white-space: nowrap;
+  transition: background 0.1s, border-color 0.1s;
+}
+.demo-btn:hover {
+  background: #2a3349;
+  border-color: #4b5563;
+}
