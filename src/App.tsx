@@ -1,9 +1,12 @@
 import { useDrumKit } from './hooks/useDrumKit.ts';
+import { useSequencer } from './hooks/useSequencer.ts';
 import { PadGrid } from './components/PadGrid.tsx';
+import { Sequencer } from './components/Sequencer.tsx';
 import './style.css';
 
 export function App() {
-  const { trigger, activePad } = useDrumKit();
+  const { trigger, activePad, kit } = useDrumKit();
+  const sequencer = useSequencer(kit);
 
   return (
     <div id="app">
@@ -13,6 +16,8 @@ export function App() {
       </header>
 
       <PadGrid activePad={activePad} onTrigger={trigger} />
+
+      <Sequencer {...sequencer} />
     </div>
   );
 }

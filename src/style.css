@@ -1,19 +1,25 @@
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
 
 :root {
-  --bg:       #111318;
-  --surface:  #1e2128;
-  --border:   #2e3240;
-  --text:     #e2e8f0;
-  --muted:    #6b7280;
-  --radius:   12px;
-  --shadow:   0 4px 16px rgba(0,0,0,.5);
+  --bg: #111318;
+  --surface: #1e2128;
+  --border: #2e3240;
+  --text: #e2e8f0;
+  --muted: #6b7280;
+  --radius: 12px;
+  --shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
 }
 
 body {
   background: var(--bg);
   color: var(--text);
-  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-family: "Segoe UI", system-ui, sans-serif;
   min-height: 100vh;
   display: flex;
   justify-content: center;
@@ -23,7 +29,7 @@ body {
 
 #app {
   width: 100%;
-  max-width: 700px;
+  max-width: 800px;
 }
 
 /* ── Header ── */
@@ -62,47 +68,328 @@ header h1 {
   border-radius: var(--radius);
   cursor: pointer;
   font-family: inherit;
-  transition: filter 0.08s ease, transform 0.08s ease;
-  box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,.08);
+  transition:
+    filter 0.08s ease,
+    transform 0.08s ease;
+  box-shadow:
+    var(--shadow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
   user-select: none;
 }
 
-.pad:hover  { filter: brightness(1.15); }
+.pad:hover {
+  filter: brightness(1.15);
+}
 .pad:active,
-.pad.active { filter: brightness(1.5); transform: scale(0.96); }
+.pad.active {
+  filter: brightness(1.5);
+  transform: scale(0.96);
+}
 
 .pad .key {
   font-size: 0.65rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  background: rgba(0,0,0,0.3);
+  background: rgba(0, 0, 0, 0.3);
   padding: 2px 6px;
   border-radius: 4px;
-  color: rgba(255,255,255,0.75);
+  color: rgba(255, 255, 255, 0.75);
 }
 
 .pad .label {
   font-size: 0.75rem;
   font-weight: 600;
   text-align: center;
-  color: rgba(255,255,255,0.9);
+  color: rgba(255, 255, 255, 0.9);
   line-height: 1.2;
 }
 
 /* ── Pad colour themes ── */
-.pad--kick    { background: linear-gradient(145deg, #7c1d1d, #991b1b); }
-.pad--snare   { background: linear-gradient(145deg, #92400e, #b45309); }
-.pad--clap    { background: linear-gradient(145deg, #5b21b6, #7c3aed); }
-.pad--hihat-c { background: linear-gradient(145deg, #854d0e, #ca8a04); }
-.pad--hihat-o { background: linear-gradient(145deg, #713f12, #d97706); }
-.pad--tom-hi  { background: linear-gradient(145deg, #1e3a8a, #2563eb); }
-.pad--tom-mid { background: linear-gradient(145deg, #1e40af, #3b82f6); }
-.pad--tom-lo  { background: linear-gradient(145deg, #1d4ed8, #60a5fa); }
-.pad--crash   { background: linear-gradient(145deg, #134e4a, #0d9488); }
-.pad--ride    { background: linear-gradient(145deg, #164e63, #0891b2); }
+.pad--kick {
+  background: linear-gradient(145deg, #7c1d1d, #991b1b);
+}
+.pad--snare {
+  background: linear-gradient(145deg, #92400e, #b45309);
+}
+.pad--clap {
+  background: linear-gradient(145deg, #5b21b6, #7c3aed);
+}
+.pad--hihat-c {
+  background: linear-gradient(145deg, #854d0e, #ca8a04);
+}
+.pad--hihat-o {
+  background: linear-gradient(145deg, #713f12, #d97706);
+}
+.pad--tom-hi {
+  background: linear-gradient(145deg, #1e3a8a, #2563eb);
+}
+.pad--tom-mid {
+  background: linear-gradient(145deg, #1e40af, #3b82f6);
+}
+.pad--tom-lo {
+  background: linear-gradient(145deg, #1d4ed8, #60a5fa);
+}
+.pad--crash {
+  background: linear-gradient(145deg, #134e4a, #0d9488);
+}
+.pad--ride {
+  background: linear-gradient(145deg, #164e63, #0891b2);
+}
 
 /* ── Responsive: 2 columns on small screens ── */
 @media (max-width: 480px) {
-  .pad-grid { grid-template-columns: repeat(2, 1fr); }
+  .pad-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ════════════════════════════════════════════════
+   SEQUENCER
+   ════════════════════════════════════════════════ */
+
+.sequencer {
+  margin-top: 3rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem 1.5rem 1.5rem;
+}
+
+.sequencer__title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 1rem;
+}
+
+/* ── Transport ─────────────────────────────────── */
+
+.transport {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding-bottom: 1rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.transport__btns {
+  display: flex;
+  gap: 6px;
+}
+
+.transport-btn {
+  background: #2a2f3e;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 6px 12px;
+  transition:
+    background 0.1s,
+    color 0.1s;
+  white-space: nowrap;
+}
+.transport-btn:hover {
+  background: #353b4f;
+}
+.transport-btn--play {
+  min-width: 44px;
+}
+.transport-btn--loop {
+  font-size: 0.78rem;
+}
+.transport-btn--active {
+  background: #1a3a2a;
+  border-color: #22c55e;
+  color: #4ade80;
+}
+
+.transport__field {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: default;
+}
+.transport__field-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.transport__bpm-input {
+  background: #2a2f3e;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 4px 8px;
+  text-align: center;
+  width: 66px;
+}
+.transport__bpm-input:focus {
+  outline: none;
+  border-color: #4b5563;
+}
+
+.transport__field--vol {
+  flex: 1;
+  min-width: 140px;
+  max-width: 220px;
+}
+.transport__vol-slider {
+  flex: 1;
+  accent-color: #6366f1;
+  cursor: pointer;
+}
+
+/* ── Sequencer grid ────────────────────────────── */
+
+.sequencer__grid {
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+/* ── Track row ─────────────────────────────────── */
+
+.seq-track {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 40px;
+  padding: 3px 0;
+}
+
+.seq-track + .seq-track {
+  border-top: 1px solid #1a1d26;
+}
+
+.seq-track__label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  width: 88px;
+  flex-shrink: 0;
+  text-align: right;
+  padding-right: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.seq-track__steps {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* ── Beat header ────────────────────────────────── */
+
+.seq-track--header .seq-track__label {
+  color: transparent;
+}
+.seq-step-group--header {
+  display: flex;
+  gap: 3px;
+  width: calc(4 * 34px + 3 * 3px); /* match step group width */
+}
+.seq-beat-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--muted);
+  width: 34px;
+  text-align: center;
+}
+.seq-step-group--header span {
+  width: 34px;
+}
+
+/* ── Step groups & cells ───────────────────────── */
+
+.seq-step-group {
+  display: flex;
+  gap: 3px;
+}
+
+.seq-step {
+  width: 34px;
+  height: 42px;
+  border-radius: 5px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: border-color 0.08s;
+}
+
+.seq-step--current {
+  border-color: rgba(255, 255, 255, 0.75);
+}
+
+/* Main body (top ~75%) */
+.seq-step__body {
+  flex: 1;
+  background: #2a2f3e;
+  transition:
+    background 0.08s,
+    filter 0.08s;
+}
+.seq-step:hover .seq-step__body {
+  background: #353b4f;
+}
+.seq-step--active .seq-step__body,
+.seq-step--active:hover .seq-step__body {
+  background: var(--track-color, #6366f1);
+}
+.seq-step--active.seq-step--current .seq-step__body {
+  filter: brightness(1.4);
+}
+.seq-step--current:not(.seq-step--active) .seq-step__body {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* Accent strip (bottom ~25%) */
+.seq-step__accent {
+  height: 9px;
+  background: #1e2330;
+  border-top: 1px solid #111;
+  transition: background 0.08s;
+  flex-shrink: 0;
+}
+.seq-step__accent:hover {
+  background: #3a3040;
+}
+.seq-step__accent--on,
+.seq-step__accent--on:hover {
+  background: #fbbf24;
+}
+.seq-step--current .seq-step__accent--on {
+  background: #fde68a;
+}
+
+/* ── Responsive ────────────────────────────────── */
+@media (max-width: 640px) {
+  .seq-track__label {
+    width: 64px;
+    font-size: 0.62rem;
+  }
+  .seq-step {
+    width: 28px;
+    height: 36px;
+  }
+  .seq-step-group--header span,
+  .seq-beat-label {
+    width: 28px;
+  }
+  .seq-step-group--header {
+    width: calc(4 * 28px + 3 * 3px);
+  }
 }

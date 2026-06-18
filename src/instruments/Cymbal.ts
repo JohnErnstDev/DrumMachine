@@ -8,12 +8,11 @@ const CYMBAL_PARAMS: Record<CymbalVariant, { decay: number; cutoff: number; ping
 };
 
 export class Cymbal {
-  constructor(private ctx: AudioContext) {}
+  constructor(private ctx: AudioContext, private destination: AudioNode) {}
 
-  trigger(variant: CymbalVariant, time = this.ctx.currentTime): void {
+  trigger(variant: CymbalVariant, time = this.ctx.currentTime, gainMultiplier = 1.0): void {
     const { decay, cutoff, pingFreq } = CYMBAL_PARAMS[variant];
 
-    // Noise layer for the wash
     const noiseSource = this.ctx.createBufferSource();
     noiseSource.buffer = createNoiseBuffer(this.ctx, decay + 0.1);
 
@@ -23,16 +22,15 @@ export class Cymbal {
     highpass.Q.value = 0.4;
 
     const noiseGain = this.ctx.createGain();
-    noiseGain.gain.setValueAtTime(0.35, time);
+    noiseGain.gain.setValueAtTime(0.35 * gainMultiplier, time);
     noiseGain.gain.exponentialRampToValueAtTime(0.001, time + decay);
 
     noiseSource.connect(highpass);
     highpass.connect(noiseGain);
-    noiseGain.connect(this.ctx.destination);
+    noiseGain.connect(this.destination);
     noiseSource.start(time);
     noiseSource.stop(time + decay + 0.1);
 
-    // Ride-only: bright "ping" sine tone for the bell
     if (pingFreq !== null) {
       const pingOsc = this.ctx.createOscillator();
       const pingGain = this.ctx.createGain();
@@ -40,11 +38,11 @@ export class Cymbal {
       pingOsc.type = 'sine';
       pingOsc.frequency.value = pingFreq;
 
-      pingGain.gain.setValueAtTime(0.25, time);
+      pingGain.gain.setValueAtTime(0.25 * gainMultiplier, time);
       pingGain.gain.exponentialRampToValueAtTime(0.001, time + decay * 0.5);
 
       pingOsc.connect(pingGain);
-      pingGain.connect(this.ctx.destination);
+      pingGain.connect(this.destination);
       pingOsc.start(time);
       pingOsc.stop(time + decay * 0.5 + 0.02);
     }

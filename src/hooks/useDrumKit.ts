@@ -9,24 +9,23 @@ export function useDrumKit() {
   const kitRef = useRef<DrumKit | null>(null);
   const [activePad, setActivePad] = useState<InstrumentName | null>(null);
 
-  // Lazily create a single DrumKit instance for the lifetime of the app
   if (!kitRef.current) {
     kitRef.current = new DrumKit();
   }
+  const kit = kitRef.current;
 
   const trigger = useCallback((name: InstrumentName) => {
-    kitRef.current!.resume().then(() => kitRef.current!.trigger(name));
+    kit.resume().then(() => kit.trigger(name));
     setActivePad(name);
     setTimeout(() => setActivePad(null), FLASH_DURATION_MS);
-  }, []);
+  }, [kit]);
 
-  // Global keyboard shortcuts
   useEffect(() => {
     const held = new Set<string>();
 
     const onKeyDown = (e: KeyboardEvent) => {
       const key = e.key.toLowerCase();
-      if (held.has(key)) return; // ignore key-repeat
+      if (held.has(key)) return;
       held.add(key);
       const instrument = KEY_TO_INSTRUMENT[key];
       if (instrument) trigger(instrument);
@@ -42,5 +41,5 @@ export function useDrumKit() {
     };
   }, [trigger]);
 
-  return { trigger, activePad };
+  return { trigger, activePad, kit };
 }

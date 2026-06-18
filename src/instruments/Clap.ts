@@ -6,9 +6,9 @@ const BURST_OFFSETS = [0, 0.008, 0.018, 0.028];
 const BURST_DURATION = 0.045;
 
 export class Clap {
-  constructor(private ctx: AudioContext) {}
+  constructor(private ctx: AudioContext, private destination: AudioNode) {}
 
-  trigger(time = this.ctx.currentTime): void {
+  trigger(time = this.ctx.currentTime, gainMultiplier = 1.0): void {
     BURST_OFFSETS.forEach((offset, i) => {
       const burstTime = time + offset;
       const isLast = i === BURST_OFFSETS.length - 1;
@@ -22,14 +22,13 @@ export class Clap {
       filter.Q.value = 0.6;
 
       const gain = this.ctx.createGain();
-      // Last burst has a longer tail for the body of the clap
       const decay = isLast ? 0.18 : BURST_DURATION;
-      gain.gain.setValueAtTime(0.9, burstTime);
+      gain.gain.setValueAtTime(0.9 * gainMultiplier, burstTime);
       gain.gain.exponentialRampToValueAtTime(0.001, burstTime + decay);
 
       noiseSource.connect(filter);
       filter.connect(gain);
-      gain.connect(this.ctx.destination);
+      gain.connect(this.destination);
 
       noiseSource.start(burstTime);
       noiseSource.stop(burstTime + decay + 0.01);

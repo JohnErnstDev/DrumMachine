@@ -7,9 +7,9 @@ const TOM_PARAMS: Record<TomVariant, { startFreq: number; endFreq: number; decay
 };
 
 export class Tom {
-  constructor(private ctx: AudioContext) {}
+  constructor(private ctx: AudioContext, private destination: AudioNode) {}
 
-  trigger(variant: TomVariant, time = this.ctx.currentTime): void {
+  trigger(variant: TomVariant, time = this.ctx.currentTime, gainMultiplier = 1.0): void {
     const { startFreq, endFreq, decay } = TOM_PARAMS[variant];
 
     const osc = this.ctx.createOscillator();
@@ -19,11 +19,11 @@ export class Tom {
     osc.frequency.setValueAtTime(startFreq, time);
     osc.frequency.exponentialRampToValueAtTime(endFreq, time + decay * 0.6);
 
-    gain.gain.setValueAtTime(1.0, time);
+    gain.gain.setValueAtTime(1.0 * gainMultiplier, time);
     gain.gain.exponentialRampToValueAtTime(0.001, time + decay);
 
     osc.connect(gain);
-    gain.connect(this.ctx.destination);
+    gain.connect(this.destination);
 
     osc.start(time);
     osc.stop(time + decay + 0.02);
