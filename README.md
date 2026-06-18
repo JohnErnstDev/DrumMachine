@@ -1,5 +1,7 @@
 # 🥁 Drum Machine
 
+**[▶ Live Demo](https://johnernstdev.github.io/DrumMachine/)**
+
 A browser-based drum machine built with TypeScript and the Web Audio API.
 
 ## Instruments
