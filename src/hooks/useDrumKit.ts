@@ -24,6 +24,10 @@ export function useDrumKit() {
     const held = new Set<string>();
 
     const onKeyDown = (e: KeyboardEvent) => {
+      // Don't fire drum pads when the user is typing in a text input
+      const tag = (e.target as HTMLElement).tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA') return;
+
       const key = e.key.toLowerCase();
       if (held.has(key)) return;
       held.add(key);
