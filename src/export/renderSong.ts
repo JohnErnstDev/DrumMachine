@@ -1,0 +1,85 @@
+import { BassDrum } from '../instruments/BassDrum.ts';
+import { Snare } from '../instruments/Snare.ts';
+import { HiHat } from '../instruments/HiHat.ts';
+import { Tom } from '../instruments/Tom.ts';
+import { Clap } from '../instruments/Clap.ts';
+import { Cymbal } from '../instruments/Cymbal.ts';
+import { PADS } from '../config/pads.ts';
+import type { PatternData, SongSlot } from '../sequencer/types.ts';
+import type { InstrumentName } from '../types.ts';
+
+const STEP_COUNT = 16;
+const ACCENT_GAIN = 1.5;
+const SAMPLE_RATE = 44100;
+const TAIL_DURATION = 2.0;
+
+export async function renderSong(
+  slots: SongSlot[],
+  patterns: PatternData[],
+  bpm: number,
+  volume: number,
+): Promise<AudioBuffer> {
+  const stepDuration = 60 / bpm / 4; // 16th-note in seconds
+  const totalSteps = slots.reduce((sum, slot) => sum + slot.repeats * STEP_COUNT, 0);
+  const totalDuration = stepDuration * totalSteps + TAIL_DURATION;
+
+  const offlineCtx = new OfflineAudioContext(
+    2,
+    Math.ceil(SAMPLE_RATE * totalDuration),
+    SAMPLE_RATE,
+  );
+
+  const masterGain = offlineCtx.createGain();
+  masterGain.gain.value = volume;
+  masterGain.connect(offlineCtx.destination);
+
+  const bassDrum = new BassDrum(offlineCtx, masterGain);
+  const snare    = new Snare(offlineCtx, masterGain);
+  const hiHat    = new HiHat(offlineCtx, masterGain);
+  const tom      = new Tom(offlineCtx, masterGain);
+  const clap     = new Clap(offlineCtx, masterGain);
+  const cymbal   = new Cymbal(offlineCtx, masterGain);
+
+  const patternMap = new Map(patterns.map((p) => [p.id, p.grid]));
+
+  function scheduleNote(name: InstrumentName, time: number, gainMultiplier: number): void {
+    switch (name) {
+      case 'bassDrum':    bassDrum.trigger(time, gainMultiplier);        break;
+      case 'snare':       snare.trigger(time, gainMultiplier);           break;
+      case 'clap':        clap.trigger(time, gainMultiplier);            break;
+      case 'closedHiHat': hiHat.triggerClosed(time, gainMultiplier);     break;
+      case 'openHiHat':   hiHat.triggerOpen(time, gainMultiplier);       break;
+      case 'highTom':     tom.trigger('high', time, gainMultiplier);     break;
+      case 'midTom':      tom.trigger('mid', time, gainMultiplier);      break;
+      case 'lowTom':      tom.trigger('low', time, gainMultiplier);      break;
+      case 'crash':       cymbal.trigger('crash', time, gainMultiplier); break;
+      case 'ride':        cymbal.trigger('ride', time, gainMultiplier);  break;
+    }
+  }
+
+  let timeOffset = 0;
+
+  for (const slot of slots) {
+    const grid = patternMap.get(slot.patternId);
+    if (!grid) continue;
+
+    for (let rep = 0; rep < slot.repeats; rep++) {
+      grid.forEach((track, trackIndex) => {
+        const instrument = PADS[trackIndex]?.instrument;
+        if (!instrument) return;
+        track.forEach((cell, stepIndex) => {
+          if (cell.active) {
+            scheduleNote(
+              instrument,
+              timeOffset + stepIndex * stepDuration,
+              cell.accent ? ACCENT_GAIN : 1.0,
+            );
+          }
+        });
+      });
+      timeOffset += STEP_COUNT * stepDuration;
+    }
+  }
+
+  return offlineCtx.startRendering();
+}

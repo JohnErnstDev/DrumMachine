@@ -92,7 +92,7 @@ export function Transport({
         disabled={isExporting}
         title="Export one-shot loop as WAV"
       >
-        {isExporting ? '⏳ Rendering…' : '💾 Export WAV'}
+        {isExporting ? '⏳ Rendering…' : songMode ? '💾 Export Song' : '💾 Export Pattern'}
       </button>
     </div>
   );

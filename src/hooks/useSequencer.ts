@@ -3,6 +3,7 @@ import { SequencerEngine } from '../sequencer/SequencerEngine.ts';
 import type { DrumKit } from '../DrumKit.ts';
 import type { TransportState } from '../sequencer/types.ts';
 import { renderPattern } from '../export/renderPattern.ts';
+import { renderSong } from '../export/renderSong.ts';
 import { encodeWav, downloadBlob } from '../export/encodeWav.ts';
 import { useProjectStore } from '../store/useProjectStore.ts';
 
@@ -125,13 +126,23 @@ export function useSequencer(kit: DrumKit) {
     if (isExporting) return;
     setIsExporting(true);
     try {
-      const audioBuffer = await renderPattern(activeGrid, store.bpm, store.volume);
+      let audioBuffer: AudioBuffer;
+      let filename: string;
+
+      if (songMode && store.song.length > 0) {
+        audioBuffer = await renderSong(store.song, store.patterns, store.bpm, store.volume);
+        filename = 'drum-song.wav';
+      } else {
+        audioBuffer = await renderPattern(activeGrid, store.bpm, store.volume);
+        filename = 'drum-loop.wav';
+      }
+
       const blob = encodeWav(audioBuffer);
-      downloadBlob(blob, 'drum-loop.wav');
+      downloadBlob(blob, filename);
     } finally {
       setIsExporting(false);
     }
-  }, [isExporting, activeGrid, store.bpm, store.volume]);
+  }, [isExporting, songMode, store.song, store.patterns, activeGrid, store.bpm, store.volume]);
 
   return {
     pattern: activeGrid,
