@@ -1,0 +1,108 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #111318;
+  --surface:  #1e2128;
+  --border:   #2e3240;
+  --text:     #e2e8f0;
+  --muted:    #6b7280;
+  --radius:   12px;
+  --shadow:   0 4px 16px rgba(0,0,0,.5);
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 2rem 1rem 4rem;
+}
+
+#app {
+  width: 100%;
+  max-width: 700px;
+}
+
+/* ── Header ── */
+header {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+header h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+.subtitle {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-top: 0.35rem;
+}
+
+/* ── Pad Grid ── */
+.pad-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+}
+
+/* ── Individual Pad ── */
+.pad {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 1.4rem 0.75rem;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-family: inherit;
+  transition: filter 0.08s ease, transform 0.08s ease;
+  box-shadow: var(--shadow), inset 0 1px 0 rgba(255,255,255,.08);
+  user-select: none;
+}
+
+.pad:hover  { filter: brightness(1.15); }
+.pad:active,
+.pad.active { filter: brightness(1.5); transform: scale(0.96); }
+
+.pad .key {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: rgba(0,0,0,0.3);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: rgba(255,255,255,0.75);
+}
+
+.pad .label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: center;
+  color: rgba(255,255,255,0.9);
+  line-height: 1.2;
+}
+
+/* ── Pad colour themes ── */
+.pad--kick    { background: linear-gradient(145deg, #7c1d1d, #991b1b); }
+.pad--snare   { background: linear-gradient(145deg, #92400e, #b45309); }
+.pad--clap    { background: linear-gradient(145deg, #5b21b6, #7c3aed); }
+.pad--hihat-c { background: linear-gradient(145deg, #854d0e, #ca8a04); }
+.pad--hihat-o { background: linear-gradient(145deg, #713f12, #d97706); }
+.pad--tom-hi  { background: linear-gradient(145deg, #1e3a8a, #2563eb); }
+.pad--tom-mid { background: linear-gradient(145deg, #1e40af, #3b82f6); }
+.pad--tom-lo  { background: linear-gradient(145deg, #1d4ed8, #60a5fa); }
+.pad--crash   { background: linear-gradient(145deg, #134e4a, #0d9488); }
+.pad--ride    { background: linear-gradient(145deg, #164e63, #0891b2); }
+
+/* ── Responsive: 2 columns on small screens ── */
+@media (max-width: 480px) {
+  .pad-grid { grid-template-columns: repeat(2, 1fr); }
+}
