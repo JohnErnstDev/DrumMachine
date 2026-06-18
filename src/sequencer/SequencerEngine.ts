@@ -93,15 +93,25 @@ export class SequencerEngine {
         if (currentSlot && this.slotStepsPlayed >= currentSlot.repeats * TOTAL_STEPS) {
           this.currentSlotIndex++;
           if (this.currentSlotIndex >= this.songSlots.length) {
-            // Song finished
-            this.triggerEnd();
-            return;
+            if (this.loop) {
+              // Restart the song from the top
+              this.currentSlotIndex = 0;
+              this.slotStepsPlayed = 0;
+              const firstSlot = this.songSlots[0];
+              const firstPattern = this.patternMap.get(firstSlot.patternId);
+              if (firstPattern) this.pattern = firstPattern;
+              this.onSlotChange?.(0);
+            } else {
+              this.triggerEnd();
+              return;
+            }
+          } else {
+            this.slotStepsPlayed = 0;
+            const nextSlot = this.songSlots[this.currentSlotIndex];
+            const nextPattern = this.patternMap.get(nextSlot.patternId);
+            if (nextPattern) this.pattern = nextPattern;
+            this.onSlotChange?.(this.currentSlotIndex);
           }
-          this.slotStepsPlayed = 0;
-          const nextSlot = this.songSlots[this.currentSlotIndex];
-          const nextPattern = this.patternMap.get(nextSlot.patternId);
-          if (nextPattern) this.pattern = nextPattern;
-          this.onSlotChange?.(this.currentSlotIndex);
         }
       }
     }
@@ -119,12 +129,14 @@ export class SequencerEngine {
     }
 
     if (this.songMode && this.songSlots.length > 0) {
-      this.currentSlotIndex = 0;
-      this.slotStepsPlayed = 0;
-      const firstSlot = this.songSlots[0];
-      const firstPattern = this.patternMap.get(firstSlot.patternId);
-      if (firstPattern) this.pattern = firstPattern;
-      this.onSlotChange?.(0);
+      // Only reset to the beginning when starting fresh (not resuming from pause)
+      if (this.currentStep === 0 && this.slotStepsPlayed === 0) {
+        this.currentSlotIndex = 0;
+        const firstSlot = this.songSlots[0];
+        const firstPattern = this.patternMap.get(firstSlot.patternId);
+        if (firstPattern) this.pattern = firstPattern;
+        this.onSlotChange?.(0);
+      }
       this.stepsRemaining = Infinity; // managed by slot tracking
     } else {
       this.stepsRemaining = this.loop ? Infinity : TOTAL_STEPS - this.currentStep;
