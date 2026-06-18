@@ -1,65 +1,25 @@
-import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { SequencerEngine } from '../sequencer/SequencerEngine.ts';
-import { createEmptyPattern } from '../sequencer/types.ts';
-import { PADS } from '../config/pads.ts';
+import type { DrumKit } from '../DrumKit.ts';
+import type { TransportState } from '../sequencer/types.ts';
 import { renderPattern } from '../export/renderPattern.ts';
 import { encodeWav, downloadBlob } from '../export/encodeWav.ts';
-import type { DrumKit } from '../DrumKit.ts';
-import type { Pattern, StepCell, TransportState } from '../sequencer/types.ts';
-
-const STEP_COUNT = 16;
-
-// ── Pattern reducer ──────────────────────────────────────────────────────────
-
-type PatternAction =
-  | { type: 'TOGGLE_STEP';   trackIndex: number; stepIndex: number }
-  | { type: 'TOGGLE_ACCENT'; trackIndex: number; stepIndex: number };
-
-function updateCell(
-  state: Pattern,
-  trackIndex: number,
-  stepIndex: number,
-  updater: (cell: StepCell) => StepCell,
-): Pattern {
-  return state.map((track, ti) =>
-    ti === trackIndex
-      ? track.map((cell, si) => (si === stepIndex ? updater(cell) : cell))
-      : track,
-  );
-}
-
-function patternReducer(state: Pattern, action: PatternAction): Pattern {
-  switch (action.type) {
-    case 'TOGGLE_STEP':
-      return updateCell(state, action.trackIndex, action.stepIndex, (c) => ({
-        ...c,
-        active: !c.active,
-        // Clear accent when deactivating a step
-        accent: !c.active ? c.accent : false,
-      }));
-    case 'TOGGLE_ACCENT':
-      return updateCell(state, action.trackIndex, action.stepIndex, (c) => ({
-        ...c,
-        accent: !c.accent,
-      }));
-    default:
-      return state;
-  }
-}
+import { useProjectStore } from '../store/useProjectStore.ts';
 
 // ── Hook ─────────────────────────────────────────────────────────────────────
 
 export function useSequencer(kit: DrumKit) {
-  const [pattern, dispatch] = useReducer(
-    patternReducer,
-    undefined,
-    () => createEmptyPattern(PADS.length, STEP_COUNT),
-  );
+  const store = useProjectStore();
+
+  // Derive active pattern from store
+  const activePatternData = store.patterns.find((p) => p.id === store.activePatternId);
+  const activeGrid = activePatternData?.grid ?? [];
+
   const [transport, setTransport] = useState<TransportState>('stopped');
-  const [bpm, setBpmState] = useState(120);
-  const [volume, setVolumeState] = useState(0.8);
   const [loop, setLoopState] = useState(true);
   const [currentStep, setCurrentStep] = useState<number | null>(null);
+  const [songMode, setSongModeState] = useState(false);
+  const [currentSlotIndex, setCurrentSlotIndex] = useState<number | null>(null);
 
   const engineRef = useRef<SequencerEngine | null>(null);
 
@@ -72,27 +32,43 @@ export function useSequencer(kit: DrumKit) {
       () => {
         setTransport('stopped');
         setCurrentStep(null);
+        setCurrentSlotIndex(null);
       },
+      (slotIdx) => setCurrentSlotIndex(slotIdx),
     );
     return () => engineRef.current?.stop();
   }, [kit]);
 
-  // Sync pattern → engine (engine reads pattern per-step, so pass latest ref)
+  // Sync active grid → engine
   useEffect(() => {
-    engineRef.current?.setPattern(pattern);
-  }, [pattern]);
+    engineRef.current?.setPattern(activeGrid);
+  }, [activeGrid]);
 
+  // Sync bpm → engine
   useEffect(() => {
-    engineRef.current?.setBpm(bpm);
-  }, [bpm]);
+    engineRef.current?.setBpm(store.bpm);
+  }, [store.bpm]);
 
+  // Sync loop → engine
   useEffect(() => {
     engineRef.current?.setLoop(loop);
   }, [loop]);
 
+  // Sync volume → kit
   useEffect(() => {
-    kit.setVolume(volume);
-  }, [volume, kit]);
+    kit.setVolume(store.volume);
+  }, [store.volume, kit]);
+
+  // Sync song data → engine
+  useEffect(() => {
+    const patternMap = new Map(store.patterns.map((p) => [p.id, p.grid]));
+    engineRef.current?.setSong(store.song, patternMap);
+  }, [store.song, store.patterns]);
+
+  // Sync song mode → engine
+  useEffect(() => {
+    engineRef.current?.setSongMode(songMode);
+  }, [songMode]);
 
   // ── Transport actions ────────────────────────────────────────────────────
 
@@ -112,6 +88,7 @@ export function useSequencer(kit: DrumKit) {
     engineRef.current?.stop();
     setTransport('stopped');
     setCurrentStep(null);
+    setCurrentSlotIndex(null);
   }, []);
 
   const rewind = useCallback(() => {
@@ -119,17 +96,26 @@ export function useSequencer(kit: DrumKit) {
     if (transport !== 'playing') setCurrentStep(null);
   }, [transport]);
 
-  const setBpm = useCallback((v: number) => setBpmState(Math.max(20, Math.min(300, v))), []);
-  const setVolume = useCallback((v: number) => setVolumeState(v), []);
+  const setBpm = useCallback((v: number) => store.setBpm(v), [store]);
+  const setVolume = useCallback((v: number) => store.setVolume(v), [store]);
   const setLoop = useCallback((v: boolean) => setLoopState(v), []);
+  const setSongMode = useCallback((v: boolean) => setSongModeState(v), []);
 
-  const toggleStep = useCallback((trackIndex: number, stepIndex: number) => {
-    dispatch({ type: 'TOGGLE_STEP', trackIndex, stepIndex });
-  }, []);
+  const toggleStep = useCallback(
+    (trackIndex: number, stepIndex: number) => {
+      const current = activeGrid[trackIndex]?.[stepIndex]?.active ?? false;
+      store.updateGrid(trackIndex, stepIndex, 'active', !current);
+    },
+    [store, activeGrid],
+  );
 
-  const toggleAccent = useCallback((trackIndex: number, stepIndex: number) => {
-    dispatch({ type: 'TOGGLE_ACCENT', trackIndex, stepIndex });
-  }, []);
+  const toggleAccent = useCallback(
+    (trackIndex: number, stepIndex: number) => {
+      const current = activeGrid[trackIndex]?.[stepIndex]?.accent ?? false;
+      store.updateGrid(trackIndex, stepIndex, 'accent', !current);
+    },
+    [store, activeGrid],
+  );
 
   // ── WAV export ───────────────────────────────────────────────────────────
 
@@ -139,22 +125,24 @@ export function useSequencer(kit: DrumKit) {
     if (isExporting) return;
     setIsExporting(true);
     try {
-      const audioBuffer = await renderPattern(pattern, bpm, volume);
+      const audioBuffer = await renderPattern(activeGrid, store.bpm, store.volume);
       const blob = encodeWav(audioBuffer);
       downloadBlob(blob, 'drum-loop.wav');
     } finally {
       setIsExporting(false);
     }
-  }, [isExporting, pattern, bpm, volume]);
+  }, [isExporting, activeGrid, store.bpm, store.volume]);
 
   return {
-    pattern,
+    pattern: activeGrid,
     transport,
-    bpm,
-    volume,
+    bpm: store.bpm,
+    volume: store.volume,
     loop,
     currentStep,
     isExporting,
+    songMode,
+    currentSlotIndex,
     play,
     pause,
     stop,
@@ -162,6 +150,7 @@ export function useSequencer(kit: DrumKit) {
     setBpm,
     setVolume,
     setLoop,
+    setSongMode,
     toggleStep,
     toggleAccent,
     exportWav,

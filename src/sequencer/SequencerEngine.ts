@@ -1,6 +1,6 @@
 import type { DrumKit } from "../DrumKit.ts";
 import { PADS } from "../config/pads.ts";
-import type { Pattern } from "./types.ts";
+import type { Pattern, SongSlot } from "./types.ts";
 
 const LOOKAHEAD_MS = 25; // how often the scheduler runs (ms)
 const SCHEDULE_AHEAD_TIME = 0.1; // how far ahead to schedule audio (seconds)
@@ -20,12 +20,23 @@ export class SequencerEngine {
   private loop = true;
   private pattern: Pattern = [];
 
+  // Song mode
+  private songMode = false;
+  private songSlots: SongSlot[] = [];
+  private patternMap = new Map<string, Pattern>();
+  private currentSlotIndex = 0;
+  private slotStepsPlayed = 0;
+  private onSlotChange?: (slotIndex: number) => void;
+
   constructor(
     private readonly ctx: AudioContext,
     private readonly kit: DrumKit,
     private readonly onStepChange: (step: number) => void,
     private readonly onPlaybackEnd: () => void,
-  ) {}
+    onSlotChange?: (i: number) => void,
+  ) {
+    this.onSlotChange = onSlotChange;
+  }
 
   private getStepDuration(): number {
     return 60 / this.bpm / 4; // 16th note duration in seconds
@@ -49,21 +60,24 @@ export class SequencerEngine {
     setTimeout(() => this.onStepChange(step), visualDelay);
   }
 
+  private triggerEnd(): void {
+    const stepDuration = this.getStepDuration();
+    const endDelay = Math.max(
+      0,
+      (this.lastScheduledTime + stepDuration - this.ctx.currentTime) * 1000,
+    );
+    this.endTimer = setTimeout(() => {
+      this.endTimer = null;
+      this.currentStep = 0;
+      this.onPlaybackEnd();
+    }, endDelay);
+    this.schedulerTimer = null;
+  }
+
   private schedule(): void {
     while (this.nextStepTime < this.ctx.currentTime + SCHEDULE_AHEAD_TIME) {
       if (this.stepsRemaining <= 0) {
-        // All steps scheduled; wait for the last one to play then notify
-        const stepDuration = this.getStepDuration();
-        const endDelay = Math.max(
-          0,
-          (this.lastScheduledTime + stepDuration - this.ctx.currentTime) * 1000,
-        );
-        this.endTimer = setTimeout(() => {
-          this.endTimer = null;
-          this.currentStep = 0;
-          this.onPlaybackEnd();
-        }, endDelay);
-        this.schedulerTimer = null;
+        this.triggerEnd();
         return;
       }
 
@@ -71,6 +85,25 @@ export class SequencerEngine {
       this.nextStepTime += this.getStepDuration();
       this.currentStep = (this.currentStep + 1) % TOTAL_STEPS;
       this.stepsRemaining--;
+
+      // Song mode: track steps played in current slot
+      if (this.songMode && this.songSlots.length > 0) {
+        this.slotStepsPlayed++;
+        const currentSlot = this.songSlots[this.currentSlotIndex];
+        if (currentSlot && this.slotStepsPlayed >= currentSlot.repeats * TOTAL_STEPS) {
+          this.currentSlotIndex++;
+          if (this.currentSlotIndex >= this.songSlots.length) {
+            // Song finished
+            this.triggerEnd();
+            return;
+          }
+          this.slotStepsPlayed = 0;
+          const nextSlot = this.songSlots[this.currentSlotIndex];
+          const nextPattern = this.patternMap.get(nextSlot.patternId);
+          if (nextPattern) this.pattern = nextPattern;
+          this.onSlotChange?.(this.currentSlotIndex);
+        }
+      }
     }
 
     this.schedulerTimer = setTimeout(() => this.schedule(), LOOKAHEAD_MS);
@@ -85,7 +118,18 @@ export class SequencerEngine {
       this.endTimer = null;
     }
 
-    this.stepsRemaining = this.loop ? Infinity : TOTAL_STEPS - this.currentStep;
+    if (this.songMode && this.songSlots.length > 0) {
+      this.currentSlotIndex = 0;
+      this.slotStepsPlayed = 0;
+      const firstSlot = this.songSlots[0];
+      const firstPattern = this.patternMap.get(firstSlot.patternId);
+      if (firstPattern) this.pattern = firstPattern;
+      this.onSlotChange?.(0);
+      this.stepsRemaining = Infinity; // managed by slot tracking
+    } else {
+      this.stepsRemaining = this.loop ? Infinity : TOTAL_STEPS - this.currentStep;
+    }
+
     this.nextStepTime = this.ctx.currentTime;
     this.schedule();
   }
@@ -104,6 +148,10 @@ export class SequencerEngine {
   stop(): void {
     this.pause();
     this.currentStep = 0;
+    if (this.songMode) {
+      this.currentSlotIndex = 0;
+      this.slotStepsPlayed = 0;
+    }
   }
 
   rewind(): void {
@@ -128,9 +176,22 @@ export class SequencerEngine {
 
   setLoop(loop: boolean): void {
     this.loop = loop;
-    // Update remaining steps if currently playing
-    if (this.schedulerTimer !== null) {
+    // Update remaining steps if currently playing (only in pattern mode)
+    if (!this.songMode && this.schedulerTimer !== null) {
       this.stepsRemaining = loop ? Infinity : TOTAL_STEPS - this.currentStep;
     }
+  }
+
+  setSong(slots: SongSlot[], patternMap: Map<string, Pattern>): void {
+    this.songSlots = slots;
+    this.patternMap = patternMap;
+  }
+
+  setSongMode(enabled: boolean): void {
+    this.songMode = enabled;
+  }
+
+  getCurrentSlotIndex(): number {
+    return this.currentSlotIndex;
   }
 }

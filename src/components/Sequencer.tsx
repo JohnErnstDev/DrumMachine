@@ -1,6 +1,7 @@
 import { PADS } from '../config/pads.ts';
 import { SequencerTrack } from './SequencerTrack.tsx';
 import { Transport } from './Transport.tsx';
+import { SongArrangement } from './SongArrangement.tsx';
 import type { useSequencer } from '../hooks/useSequencer.ts';
 
 type SequencerProps = ReturnType<typeof useSequencer>;
@@ -13,6 +14,8 @@ export function Sequencer({
   loop,
   currentStep,
   isExporting,
+  songMode,
+  currentSlotIndex,
   play,
   pause,
   stop,
@@ -20,6 +23,7 @@ export function Sequencer({
   setBpm,
   setVolume,
   setLoop,
+  setSongMode,
   toggleStep,
   toggleAccent,
   exportWav,
@@ -34,6 +38,7 @@ export function Sequencer({
         volume={volume}
         loop={loop}
         isExporting={isExporting}
+        songMode={songMode}
         onPlay={play}
         onPause={pause}
         onStop={stop}
@@ -41,6 +46,7 @@ export function Sequencer({
         onBpmChange={setBpm}
         onVolumeChange={setVolume}
         onLoopToggle={() => setLoop(!loop)}
+        onSongModeToggle={() => setSongMode(!songMode)}
         onExport={exportWav}
       />
 
@@ -70,6 +76,8 @@ export function Sequencer({
           />
         ))}
       </div>
+
+      {songMode && <SongArrangement currentSlotIndex={currentSlotIndex} />}
     </section>
   );
 }

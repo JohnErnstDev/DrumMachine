@@ -6,6 +6,7 @@ interface Props {
   volume: number;
   loop: boolean;
   isExporting: boolean;
+  songMode: boolean;
   onPlay: () => void;
   onPause: () => void;
   onStop: () => void;
@@ -13,13 +14,14 @@ interface Props {
   onBpmChange: (bpm: number) => void;
   onVolumeChange: (vol: number) => void;
   onLoopToggle: () => void;
+  onSongModeToggle: () => void;
   onExport: () => void;
 }
 
 export function Transport({
-  transport, bpm, volume, loop, isExporting,
+  transport, bpm, volume, loop, isExporting, songMode,
   onPlay, onPause, onStop, onRewind,
-  onBpmChange, onVolumeChange, onLoopToggle, onExport,
+  onBpmChange, onVolumeChange, onLoopToggle, onSongModeToggle, onExport,
 }: Props) {
   const isPlaying = transport === 'playing';
 
@@ -45,6 +47,15 @@ export function Transport({
         title="Toggle loop"
       >
         🔁 Loop
+      </button>
+
+      {/* Pattern / Song mode toggle */}
+      <button
+        className={`transport-btn transport-btn--mode${songMode ? ' transport-btn--active' : ''}`}
+        onMouseDown={onSongModeToggle}
+        title={songMode ? 'Switch to Pattern mode' : 'Switch to Song mode'}
+      >
+        {songMode ? '🎵 Song' : '🥁 Pattern'}
       </button>
 
       {/* BPM */}

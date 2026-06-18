@@ -408,3 +408,289 @@ header h1 {
   opacity: 0.65;
   cursor: not-allowed;
 }
+
+/* ── Pattern / Song mode toggle button ────────────── */
+.transport-btn--mode {
+  background: #1a1e2a;
+  border-color: #3b4260;
+  color: #a0a8c8;
+  font-size: 0.78rem;
+  min-width: 90px;
+}
+.transport-btn--mode:hover {
+  background: #22273a;
+}
+.transport-btn--mode.transport-btn--active {
+  background: #1a2a3a;
+  border-color: #6366f1;
+  color: #a5b4fc;
+}
+
+/* ── Pattern Library ──────────────────────────────── */
+.pattern-library {
+  background: #1e2128;
+  border: 1px solid #2e3240;
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  max-width: 900px;
+}
+
+.pattern-library__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.pattern-library__title {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #6b7280;
+}
+
+.pattern-library__add-btn {
+  font-size: 0.74rem;
+  padding: 3px 10px;
+  background: #1a2a3a;
+  border: 1px solid #2563eb;
+  color: #93c5fd;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.pattern-library__add-btn:hover {
+  background: #1e3a5f;
+}
+
+.pattern-library__scroll {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.pattern-card {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  background: #111318;
+  border: 1px solid #2e3240;
+  border-radius: 7px;
+  padding: 8px 10px;
+  cursor: pointer;
+  min-width: 110px;
+  transition: border-color 0.1s, background 0.1s;
+}
+.pattern-card:hover {
+  background: #1a1e28;
+  border-color: #3b4260;
+}
+.pattern-card--active {
+  border-color: #6366f1;
+  background: #1a1d2e;
+}
+
+.pattern-card__name {
+  font-size: 0.82rem;
+  color: #d1d5db;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 130px;
+  cursor: pointer;
+}
+.pattern-card--active .pattern-card__name {
+  color: #a5b4fc;
+  font-weight: 600;
+}
+
+.pattern-card__rename-input {
+  font-size: 0.82rem;
+  background: #0d0f14;
+  border: 1px solid #6366f1;
+  color: #e5e7eb;
+  border-radius: 4px;
+  padding: 2px 6px;
+  width: 120px;
+}
+
+.pattern-card__actions {
+  display: flex;
+  gap: 4px;
+}
+
+.pattern-card__action-btn {
+  background: transparent;
+  border: 1px solid #2e3240;
+  border-radius: 4px;
+  color: #6b7280;
+  font-size: 0.72rem;
+  padding: 2px 5px;
+  cursor: pointer;
+  line-height: 1.2;
+  transition: color 0.1s, border-color 0.1s;
+}
+.pattern-card__action-btn:hover:not(:disabled) {
+  color: #d1d5db;
+  border-color: #4b5563;
+}
+.pattern-card__action-btn--delete:hover:not(:disabled) {
+  color: #f87171;
+  border-color: #f87171;
+}
+.pattern-card__action-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* ── Song Arrangement ─────────────────────────────── */
+.song-arrangement {
+  background: #1a1d2a;
+  border: 1px solid #2e3240;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-top: 12px;
+}
+
+.song-arrangement__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.song-arrangement__title {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #6b7280;
+}
+
+.song-arrangement__add-btn {
+  font-size: 0.74rem;
+  padding: 3px 10px;
+  background: #1a2a3a;
+  border: 1px solid #2563eb;
+  color: #93c5fd;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.song-arrangement__add-btn:hover {
+  background: #1e3a5f;
+}
+
+.song-arrangement__empty {
+  font-size: 0.78rem;
+  color: #4b5563;
+  font-style: italic;
+  margin: 4px 0;
+}
+
+.song-arrangement__slots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* ── Song Slot Card ───────────────────────────────── */
+.song-slot-card {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #111318;
+  border: 1px solid #2e3240;
+  border-radius: 7px;
+  padding: 5px 8px;
+  transition: border-color 0.1s;
+}
+.song-slot-card--current {
+  border-color: #6366f1;
+  background: #1a1d2e;
+}
+
+.song-slot-card__name {
+  font-size: 0.8rem;
+  color: #d1d5db;
+  white-space: nowrap;
+  max-width: 90px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.song-slot-card--current .song-slot-card__name {
+  color: #a5b4fc;
+  font-weight: 600;
+}
+
+.song-slot-card__repeats {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.song-slot-card__rep-btn {
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #1e2128;
+  border: 1px solid #2e3240;
+  border-radius: 3px;
+  color: #9ca3af;
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+}
+.song-slot-card__rep-btn:hover:not(:disabled) {
+  background: #2a2f3e;
+  color: #d1d5db;
+}
+.song-slot-card__rep-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.song-slot-card__rep-count {
+  font-size: 0.75rem;
+  color: #9ca3af;
+  min-width: 22px;
+  text-align: center;
+}
+
+.song-slot-card__order {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.song-slot-card__order-btn {
+  background: transparent;
+  border: none;
+  color: #4b5563;
+  font-size: 0.65rem;
+  cursor: pointer;
+  padding: 0 2px;
+  line-height: 1;
+}
+.song-slot-card__order-btn:hover {
+  color: #9ca3af;
+}
+
+.song-slot-card__remove {
+  background: transparent;
+  border: none;
+  color: #4b5563;
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 0 2px;
+  line-height: 1;
+}
+.song-slot-card__remove:hover {
+  color: #f87171;
+}
