@@ -24,6 +24,10 @@ export function useSequencer(kit: DrumKit) {
 
   const engineRef = useRef<SequencerEngine | null>(null);
 
+  // Ref so callbacks always see latest store state without recreating the engine
+  const storeRef = useRef(store);
+  useEffect(() => { storeRef.current = store; });
+
   // Create engine once
   useEffect(() => {
     engineRef.current = new SequencerEngine(
@@ -35,7 +39,12 @@ export function useSequencer(kit: DrumKit) {
         setCurrentStep(null);
         setCurrentSlotIndex(null);
       },
-      (slotIdx) => setCurrentSlotIndex(slotIdx),
+      (slotIdx) => {
+        setCurrentSlotIndex(slotIdx);
+        // Load the now-playing pattern into the sequencer view
+        const slot = storeRef.current.song[slotIdx];
+        if (slot) storeRef.current.setActivePattern(slot.patternId);
+      },
     );
     return () => engineRef.current?.stop();
   }, [kit]);
