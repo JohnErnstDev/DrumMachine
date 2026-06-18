@@ -149,7 +149,7 @@ header h1 {
    ════════════════════════════════════════════════ */
 
 .sequencer {
-  margin-top: 3rem;
+  margin-top: 14px;
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -434,6 +434,7 @@ header h1 {
   padding: 10px 14px;
   margin-bottom: 12px;
   max-width: 900px;
+  margin-top: 14px;
 }
 
 .pattern-library__header {
@@ -483,7 +484,9 @@ header h1 {
   padding: 8px 10px;
   cursor: pointer;
   min-width: 110px;
-  transition: border-color 0.1s, background 0.1s;
+  transition:
+    border-color 0.1s,
+    background 0.1s;
 }
 .pattern-card:hover {
   background: #1a1e28;
@@ -532,7 +535,9 @@ header h1 {
   padding: 2px 5px;
   cursor: pointer;
   line-height: 1.2;
-  transition: color 0.1s, border-color 0.1s;
+  transition:
+    color 0.1s,
+    border-color 0.1s;
 }
 .pattern-card__action-btn:hover:not(:disabled) {
   color: #d1d5db;
